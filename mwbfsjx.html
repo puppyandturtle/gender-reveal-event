@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square-round.css" rel="stylesheet">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>우리 아기 젠더 리빌</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #eeeeee;
+            font-family: 'NanumSquareRound';
+            overflow: hidden;
+            transition: background-color 1s ease;
+
+            /* 터치 확대 및 선택 방지 */
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .instruction {
+            color: #666;
+            font-size: 1.5rem;
+            font-weight: bold;
+            pointer-events: none; /* 텍스트 클릭 방지 */
+        }
+
+        .reveal-container {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .balloon-wrapper {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.1s ease-out;
+            z-index: 10;
+            -webkit-tap-highlight-color: transparent;
+            top: 40px;
+        }
+
+        .balloon {
+            width: 140px;
+            height: 170px;
+            background-color: #fff9c4;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            position: relative;
+            box-shadow: inset -10px -10px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 15px solid #fff9c4;
+        }
+
+        .string {
+            width: 2px;
+            height: 160px;
+            background-color: #bbb;
+            position: absolute;
+            left: 49.5%;
+            top: 178px;
+        }
+
+        .baby-image-container {
+            position: absolute;
+            display: none;
+            text-align: center;
+            animation: popUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-top: 40px;
+        }
+
+        .baby-image-container img {
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            border: 8px solid white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            object-fit: cover;
+        }
+
+        .result-text {
+            margin-top: 25px;
+            font-size: 2rem;
+            color: #2196f3;
+            font-weight: 800;
+        }
+
+        @keyframes popOut {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        @keyframes popUp {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .popping { animation: popOut 0.2s forwards; }
+
+        .parent-image-wrapper {
+            width: 400px;
+            padding-top: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="instruction" id="babyName"></div>
+<div class="instruction" id="msg">풍선을 여러 번 클릭해 보세요! 👶</div>
+
+<div class="reveal-container">
+    <div class="balloon-wrapper" id="balloonWrapper">
+        <div class="balloon"></div>
+        <div id="ballonString" class="string"></div>
+    </div>
+
+    <div id="parentImageContainer">
+        <img src="./parent.png" class="parent-image-wrapper" alt="">
+    </div>
+
+    <div class="baby-image-container" id="babyContainer">
+        <img src="./boy.jpeg" alt="Baby Boy">
+        <div class="result-text">축하합니다! 🎊<br><span id="resultName"></span>왕자님이에요! 👑</div>
+    </div>
+</div>
+
+<script>
+    let clicks = 0;
+    const balloonWrapper = document.getElementById('balloonWrapper');
+    const babyContainer = document.getElementById('babyContainer');
+    const babyNameElem = document.getElementById('babyName');
+    const parentImageContainer = document.getElementById('parentImageContainer');
+    const ballonString = document.getElementById('ballonString');
+    const msg = document.getElementById('msg');
+    let randInt = Math.floor(Math.random() * 5);
+    const maxClicks = 12 + randInt;
+    const urlParams = new URLSearchParams(window.location.search);
+    const name = urlParams.get('name');
+
+    if(name) {
+        let resultNameElem = document.getElementById('resultName');
+        babyNameElem.innerText = name + '의 성별은 무엇일까요?';
+        resultNameElem.innerText = name + '는 ';
+    }
+
+    balloonWrapper.addEventListener('click', () => {
+        if (clicks < maxClicks) {
+            clicks++;
+            balloonWrapper.style.transform = `scale(${1 + (clicks * 0.03)})`;
+            ballonString.style.height = `${160 - (clicks * 5)}px`;
+
+            if (clicks === maxClicks) {
+                balloonWrapper.classList.add('popping');
+
+                setTimeout(() => {
+                    balloonWrapper.style.display = 'none';
+                    babyContainer.style.display = 'block';
+                    babyNameElem.style.display = 'none';
+                    parentImageContainer.style.display = 'none';
+                    msg.innerText = "멋진 왕자님이 찾아왔어요!";
+                    document.body.style.backgroundColor = "#e3f2fd";
+                }, 200);
+            }
+        }
+    });
+</script>
+</body>
+</html>
